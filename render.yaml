@@ -2,7 +2,7 @@ services:
   - type: web
     name: ai4sustain
     runtime: node
-    buildCommand: npm install
+    buildCommand: npm install && pip install -r ml/requirements.txt
     startCommand: node server/server.js
     plan: free
     envVars:
