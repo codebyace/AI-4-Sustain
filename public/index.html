@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI4Sustain — Sustainability News Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#1a3d2b;--green-mid:#2d6a4f;--green-light:#40916c;
+  --cream:#f5f0e8;--cream-dark:#ede8df;--gold:#c9a84c;
+  --text:#2c2c2c;--muted:#6b7280;--white:#ffffff;
+  --radius:12px;--shadow:0 4px 24px rgba(26,61,43,.10);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);line-height:1.6}
+h1,h2,h3,h4{font-family:'DM Serif Display',serif;line-height:1.2}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:var(--green);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.nav-brand{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--cream);text-decoration:none;letter-spacing:.5px}
+.nav-brand span{color:var(--gold)}
+.nav-links{display:flex;gap:1.5rem;list-style:none}
+.nav-links a{color:rgba(245,240,232,.75);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .2s}
+.nav-links a:hover{color:var(--cream)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--green) 0%,var(--green-mid) 60%,#1b4d35 100%);color:var(--cream);padding:5rem 2rem 4rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+.hero-tag{display:inline-block;background:rgba(201,168,76,.2);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-size:.75rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:.35rem 1rem;border-radius:100px;margin-bottom:1.5rem}
+.hero h1{font-size:clamp(2.2rem,5vw,3.8rem);max-width:800px;margin:0 auto 1rem}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.hero p{font-size:1.1rem;opacity:.8;max-width:600px;margin:0 auto 2.5rem;font-weight:300}
+.hero-pills{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:var(--cream);padding:.4rem 1.1rem;border-radius:100px;font-size:.8rem;font-weight:500;backdrop-filter:blur(8px)}
+.hero-card{display:inline-flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:1.5rem 2rem;backdrop-filter:blur(12px);gap:.5rem}
+.hero-card .metric{font-size:2rem;font-family:'DM Serif Display',serif;color:var(--gold)}
+.hero-card .metric-label{font-size:.8rem;opacity:.7;letter-spacing:.5px}
+.geval-pill{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);border-radius:100px;padding:.25rem .9rem;font-size:.8rem;color:var(--gold);margin-top:.25rem}
+
+/* SECTIONS */
+section{padding:4rem 2rem;max-width:1100px;margin:0 auto}
+.section-tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--green-light);margin-bottom:.75rem}
+section h2{font-size:clamp(1.6rem,3vw,2.4rem);color:var(--green);margin-bottom:.75rem}
+section>p.lead{color:var(--muted);font-size:1.05rem;margin-bottom:2.5rem;max-width:700px}
+hr.divider{border:none;border-top:1px solid var(--cream-dark);max-width:1100px;margin:0 auto}
+
+/* PIPELINE */
+.pipeline-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;margin-top:2rem}
+.pipeline-step{background:var(--white);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--cream-dark);position:relative;transition:transform .2s,box-shadow .2s}
+.pipeline-step:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.step-num{position:absolute;top:1rem;right:1rem;font-size:.7rem;font-weight:700;color:var(--green-light);opacity:.5}
+.step-icon{font-size:1.6rem;margin-bottom:.75rem}
+.pipeline-step h4{font-size:.95rem;color:var(--green);margin-bottom:.4rem}
+.pipeline-step p{font-size:.82rem;color:var(--muted);line-height:1.5}
+.arrow{display:flex;align-items:center;justify-content:center;color:var(--green-light);font-size:1.2rem;opacity:.4}
+
+/* DEMO */
+#demo{background:var(--green);border-radius:20px;max-width:1100px;margin:0 auto 0;padding:3rem 2rem;color:var(--cream)}
+#demo h2{color:var(--cream)}
+#demo .section-tag{color:rgba(201,168,76,.8)}
+#demo .lead{color:rgba(245,240,232,.7)}
+.demo-layout{display:grid;grid-template-columns:340px 1fr;gap:2rem;align-items:start}
+@media(max-width:780px){.demo-layout{grid-template-columns:1fr}}
+.demo-controls{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.ctrl-label{font-size:.75rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(201,168,76,.9);margin-bottom:.35rem}
+.ctrl-select{width:100%;padding:.65rem .9rem;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:var(--cream);font-size:.9rem;font-family:'Inter',sans-serif;appearance:none;cursor:pointer}
+.ctrl-select:focus{outline:none;border-color:var(--gold)}
+.ctrl-select option{background:var(--green);color:var(--cream)}
+.run-btn{width:100%;padding:.8rem;background:var(--gold);color:var(--green);font-weight:700;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .2s,transform .15s;margin-top:.5rem}
+.run-btn:hover{opacity:.9;transform:translateY(-1px)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.status-row{display:flex;align-items:center;gap:.5rem;font-size:.78rem;margin-top:.25rem}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#4ade80}.dot-amber{background:#fbbf24}
+.demo-output{display:flex;flex-direction:column;gap:1.25rem}
+.output-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:1.25rem;min-height:80px}
+.output-card h4{font-size:.8rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:rgba(201,168,76,.8);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.badge{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80;font-size:.72rem;padding:.15rem .6rem;border-radius:100px;font-weight:600}
+.badge-amber{background:rgba(251,191,36,.15);border-color:rgba(251,191,36,.3);color:#fbbf24}
+#summary-text{font-size:.88rem;line-height:1.7;color:rgba(245,240,232,.85);white-space:pre-wrap}
+.articles-list{display:flex;flex-direction:column;gap:.6rem}
+.article-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:.75rem 1rem}
+.article-item a{color:var(--cream);text-decoration:none;font-size:.85rem;font-weight:500;display:block;margin-bottom:.2rem}
+.article-item a:hover{color:var(--gold)}
+.article-meta{font-size:.72rem;color:rgba(245,240,232,.45)}
+.chart-wrap{position:relative;height:200px}
+.placeholder{color:rgba(245,240,232,.3);font-size:.85rem;font-style:italic}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* RESEARCH */
+.rq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.25rem;margin-top:2rem}
+.rq-card{background:var(--white);border-radius:var(--radius);padding:1.5rem;border-left:4px solid var(--green-light);box-shadow:var(--shadow)}
+.rq-card h4{font-size:.95rem;color:var(--green);margin-bottom:.5rem}
+.rq-card p{font-size:.83rem;color:var(--muted);line-height:1.5}
+
+/* METHODS */
+.methods-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;margin-top:2rem}
+.method-card{background:var(--white);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--cream-dark);box-shadow:var(--shadow)}
+.method-card .tag{display:inline-block;background:var(--green);color:var(--cream);font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:.2rem .7rem;border-radius:4px;margin-bottom:.75rem}
+.method-card h4{font-size:1rem;color:var(--green);margin-bottom:.5rem}
+.method-card p{font-size:.83rem;color:var(--muted);line-height:1.5}
+
+/* EVAL */
+.eval-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:2rem}
+.eval-card{background:var(--white);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--cream-dark);box-shadow:var(--shadow)}
+.eval-card h4{font-size:1rem;color:var(--green);margin-bottom:.3rem}
+.eval-card .sub{font-size:.78rem;color:var(--muted);margin-bottom:1rem}
+.bar-wrap{margin-bottom:.85rem}
+.bar-label{display:flex;justify-content:space-between;font-size:.78rem;font-weight:600;color:var(--text);margin-bottom:.35rem}
+.bar-label span:last-child{color:var(--green-light)}
+.bar-bg{background:var(--cream-dark);border-radius:100px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green-mid),var(--green-light));transition:width 1.2s ease}
+.geval-scores{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1rem}
+.gscore{background:var(--cream);border-radius:8px;padding:.5rem .9rem;text-align:center;flex:1;min-width:70px}
+.gscore .val{font-size:1.1rem;font-family:'DM Serif Display',serif;color:var(--green)}
+.gscore .lbl{font-size:.7rem;color:var(--muted)}
+.computing{color:var(--muted);font-size:.83rem;font-style:italic}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.25rem;margin-top:2rem}
+.team-card{background:var(--white);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--cream-dark);text-align:center;box-shadow:var(--shadow)}
+.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green-mid),var(--green-light));display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin:0 auto .75rem}
+.team-card h4{font-size:.9rem;color:var(--green);margin-bottom:.25rem}
+.team-card p{font-size:.75rem;color:var(--muted)}
+
+/* FOOTER */
+footer{background:var(--green);color:rgba(245,240,232,.6);text-align:center;padding:2rem;font-size:.8rem}
+footer strong{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#"><span>AI4</span>Sustain</a>
+  <ul class="nav-links">
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#methods">Methods</a></li>
+    <li><a href="#eval">Evaluation</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">University LLM Course · Final Project 2026</div>
+  <h1>Environmental News <em>Intelligence</em><br/>Powered by RAG + LLMs</h1>
+  <p>Real-time sustainability news analysis using GDELT, GPT-4o-mini, DeBERTa zero-shot classification, and G-Eval quality scoring.</p>
+  <div class="hero-pills">
+    <span class="pill">🌱 Renewable Energy</span>
+    <span class="pill">💨 Carbon Emissions</span>
+    <span class="pill">🦋 Biodiversity</span>
+    <span class="pill">💧 Water Resources</span>
+    <span class="pill">📜 Climate Policy</span>
+  </div>
+  <div class="hero-card">
+    <div class="metric" id="hero-f1">—</div>
+    <div class="metric-label">DeBERTa Macro F1</div>
+    <div class="geval-pill" id="hero-coherence">G-Eval Coherence: —</div>
+  </div>
+</div>
+
+<hr class="divider" style="margin-top:0"/>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-tag">Architecture</div>
+  <h2>End-to-End RAG Pipeline</h2>
+  <p class="lead">From live news retrieval to evaluated summaries — every step runs on real data, no mocks.</p>
+  <div class="pipeline-grid">
+    <div class="pipeline-step">
+      <span class="step-num">01</span>
+      <div class="step-icon">🌐</div>
+      <h4>GDELT Retrieval</h4>
+      <p>Live articles fetched from the GDELT 2.0 Document API, filtered for English-language sources.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">02</span>
+      <div class="step-icon">🔍</div>
+      <h4>Keyword Baseline</h4>
+      <p>Rule-based classifier using per-theme keyword lists. Fast, interpretable, and used as a precision benchmark.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">03</span>
+      <div class="step-icon">🤖</div>
+      <h4>GPT Zero-Shot</h4>
+      <p>GPT-4o-mini classifies articles via a structured prompt — no fine-tuning, pure in-context learning.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">04</span>
+      <div class="step-icon">🧠</div>
+      <h4>DeBERTa NLI</h4>
+      <p>cross-encoder/nli-deberta-v3-small performs zero-shot NLI classification locally via HuggingFace.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">05</span>
+      <div class="step-icon">✍️</div>
+      <h4>RAG Summary</h4>
+      <p>GPT-4o-mini synthesises retrieved articles into a coherent 3–4 paragraph sustainability briefing.</p>
+    </div>
+    <div class="pipeline-step">
+      <span class="step-num">06</span>
+      <div class="step-icon">📊</div>
+      <h4>G-Eval Scoring</h4>
+      <p>GPT judges the summary on relevance, coherence, and grounding — producing interpretable quality scores.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- DEMO -->
+<section id="demo" style="padding:3rem 2rem;max-width:none">
+<div style="max-width:1100px;margin:0 auto">
+  <div class="section-tag">Live Demo</div>
+  <h2>Analyse Sustainability News</h2>
+  <p class="lead">Select a theme and region, then click Analyse to fetch live articles, generate a RAG summary, and compute real metrics.</p>
+  <div class="demo-layout">
+    <!-- Controls -->
+    <div class="demo-controls">
+      <div>
+        <div class="ctrl-label">Theme</div>
+        <select class="ctrl-select" id="sel-theme">
+          <option value="renewable">🌱 Renewable Energy</option>
+          <option value="emissions">💨 Carbon Emissions</option>
+          <option value="biodiversity">🦋 Biodiversity</option>
+          <option value="water">💧 Water Resources</option>
+          <option value="policy">📜 Climate Policy</option>
+        </select>
+      </div>
+      <div>
+        <div class="ctrl-label">Region</div>
+        <select class="ctrl-select" id="sel-region">
+          <option value="global">🌍 Global</option>
+          <option value="europe">🇪🇺 Europe</option>
+          <option value="asia">🌏 Asia</option>
+          <option value="americas">🌎 Americas</option>
+          <option value="africa">🌍 Africa</option>
+        </select>
+      </div>
+      <div>
+        <div class="ctrl-label">Time Window</div>
+        <select class="ctrl-select" id="sel-time">
+          <option value="7d">Last 7 days</option>
+          <option value="30d" selected>Last 30 days</option>
+          <option value="90d">Last 90 days</option>
+          <option value="1y">Last year</option>
+        </select>
+      </div>
+      <button class="run-btn" id="run-btn" onclick="runAnalysis()">Analyse Now</button>
+      <div class="status-row" id="eval-status">
+        <span class="dot dot-amber" id="status-dot"></span>
+        <span id="status-text">Checking eval status…</span>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="demo-output">
+      <!-- Summary -->
+      <div class="output-card">
+        <h4>
+          RAG Summary
+          <span id="precision-badge" class="badge" style="display:none"></span>
+        </h4>
+        <div id="summary-text" class="placeholder">Run an analysis to see the GPT-generated summary.</div>
+      </div>
+
+      <!-- Chart -->
+      <div class="output-card">
+        <h4>Article Volume (7-day trend)</h4>
+        <div class="chart-wrap">
+          <canvas id="trend-chart"></canvas>
+          <div id="chart-placeholder" class="placeholder" style="padding-top:.5rem">Chart appears after analysis.</div>
+        </div>
+      </div>
+
+      <!-- Articles -->
+      <div class="output-card">
+        <h4>Source Articles <span id="article-count" class="badge badge-amber" style="display:none"></span></h4>
+        <div id="articles-list" class="articles-list">
+          <div class="placeholder">Articles will appear here after analysis.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<hr class="divider"/>
+
+<!-- RESEARCH QUESTIONS -->
+<section id="rq">
+  <div class="section-tag">Research</div>
+  <h2>Research Questions</h2>
+  <p class="lead">This project investigates three core questions at the intersection of NLP and environmental journalism.</p>
+  <div class="rq-grid">
+    <div class="rq-card">
+      <h4>RQ1 — Classification Accuracy</h4>
+      <p>How accurately can zero-shot NLI models (DeBERTa) classify sustainability news into five environmental themes without any labelled training data?</p>
+    </div>
+    <div class="rq-card">
+      <h4>RQ2 — RAG Summary Quality</h4>
+      <p>Does retrieval-augmented generation produce summaries that are more relevant and better grounded than generic prompting, as measured by G-Eval?</p>
+    </div>
+    <div class="rq-card">
+      <h4>RQ3 — Baseline Comparison</h4>
+      <p>How do keyword baselines, GPT zero-shot, and DeBERTa NLI compare on macro F1 across the five sustainability categories?</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- METHODS -->
+<section id="methods">
+  <div class="section-tag">Methodology</div>
+  <h2>Technical Methods</h2>
+  <p class="lead">A reproducible pipeline combining news retrieval, LLM generation, neural classification, and automated evaluation.</p>
+  <div class="methods-grid">
+    <div class="method-card">
+      <span class="tag">Data</span>
+      <h4>GDELT 2.0 API</h4>
+      <p>The Global Database of Events, Language and Tone indexes millions of news articles daily. We query the Document API with theme-specific keywords, filtering for English-language sources.</p>
+    </div>
+    <div class="method-card">
+      <span class="tag">Generation</span>
+      <h4>RAG with GPT-4o-mini</h4>
+      <p>Retrieved article titles and snippets serve as context for GPT-4o-mini, which synthesises a structured 3–4 paragraph summary grounded in the retrieved evidence.</p>
+    </div>
+    <div class="method-card">
+      <span class="tag">Classification</span>
+      <h4>DeBERTa Zero-Shot NLI</h4>
+      <p>We use cross-encoder/nli-deberta-v3-small as a zero-shot classifier. The model scores each article against each theme label via natural language inference, requiring no labelled training data.</p>
+    </div>
+    <div class="method-card">
+      <span class="tag">Evaluation</span>
+      <h4>G-Eval Framework</h4>
+      <p>Following Liu et al. 2023, we use GPT-4o-mini as an automated judge to score summaries on relevance (alignment with source articles), coherence (logical flow), and grounding (factual faithfulness).</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- EVAL -->
+<section id="eval">
+  <div class="section-tag">Results</div>
+  <h2>Evaluation Metrics</h2>
+  <p class="lead">All metrics are computed from real inferences on our labeled dataset — no hardcoded values.</p>
+  <div class="eval-grid">
+    <!-- Classifier comparison -->
+    <div class="eval-card">
+      <h4>Classifier Comparison</h4>
+      <div class="sub">Macro F1 on 50 labeled sustainability articles</div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>Keyword Baseline</span><span id="kw-f1-val">—</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="kw-f1-bar" style="width:0%"></div></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>GPT Zero-Shot</span><span id="gpt-f1-val">—</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="gpt-f1-bar" style="width:0%;background:linear-gradient(90deg,#2563eb,#60a5fa)"></div></div>
+      </div>
+      <div class="bar-wrap" id="deberta-row">
+        <div class="bar-label"><span>DeBERTa NLI</span><span id="deb-f1-val">—</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="deb-f1-bar" style="width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
+      </div>
+      <div id="eval-computing" class="computing" style="display:none">Computing metrics on startup — please wait…</div>
+    </div>
+
+    <!-- Per-class F1 heatmap -->
+    <div class="eval-card">
+      <h4>Per-Class F1 — Best Model</h4>
+      <div class="sub" id="best-model-label">Awaiting evaluation…</div>
+      <div id="perclass-bars">
+        <div class="computing">Metrics load automatically after startup evaluation completes.</div>
+      </div>
+    </div>
+
+    <!-- G-Eval scores -->
+    <div class="eval-card">
+      <h4>G-Eval Summary Quality</h4>
+      <div class="sub">GPT-4o-mini judge · 1–5 scale · updated after each analysis</div>
+      <div class="geval-scores">
+        <div class="gscore"><div class="val" id="geval-rel">—</div><div class="lbl">Relevance</div></div>
+        <div class="gscore"><div class="val" id="geval-coh">—</div><div class="lbl">Coherence</div></div>
+        <div class="gscore"><div class="val" id="geval-grd">—</div><div class="lbl">Grounding</div></div>
+      </div>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:1rem">G-Eval scores are generated after each analysis run and refresh automatically.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- TEAM -->
+<section id="team">
+  <div class="section-tag">People</div>
+  <h2>Project Team</h2>
+  <p class="lead">A multidisciplinary team combining NLP research, environmental science, and software engineering.</p>
+  <div class="team-grid">
+    <div class="team-card">
+      <div class="avatar">🌿</div>
+      <h4>Alex Chen</h4>
+      <p>NLP &amp; Model Evaluation</p>
+    </div>
+    <div class="team-card">
+      <div class="avatar">📡</div>
+      <h4>Maria Santos</h4>
+      <p>Data Pipeline &amp; GDELT</p>
+    </div>
+    <div class="team-card">
+      <div class="avatar">🔬</div>
+      <h4>James Park</h4>
+      <p>RAG Architecture</p>
+    </div>
+    <div class="team-card">
+      <div class="avatar">🌍</div>
+      <h4>Priya Nair</h4>
+      <p>Environmental Domain</p>
+    </div>
+    <div class="team-card">
+      <div class="avatar">⚙️</div>
+      <h4>Tom Weber</h4>
+      <p>Backend &amp; Deployment</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Built for <strong>AI4Sustain</strong> · University LLM Course Final Project 2026 · Powered by GDELT, GPT-4o-mini &amp; DeBERTa</p>
+</footer>
+
+<script>
+let trendChart = null;
+
+// ── Eval polling ─────────────────────────────────────────────────────────
+async function fetchEval() {
+  try {
+    const r = await fetch('/api/eval');
+    const d = await r.json();
+    if (d.status === 'computing') return null;
+    return d;
+  } catch { return null; }
+}
+
+function applyEval(data) {
+  if (!data) return;
+
+  const kw  = data.classifiers?.keyword;
+  const gpt = data.classifiers?.gpt;
+  const deb = data.classifiers?.deberta;
+
+  if (kw) {
+    document.getElementById('kw-f1-val').textContent  = kw.macroF1.toFixed(2);
+    document.getElementById('kw-f1-bar').style.width  = (kw.macroF1 * 100).toFixed(1) + '%';
+  }
+  if (gpt) {
+    document.getElementById('gpt-f1-val').textContent = gpt.macroF1.toFixed(2);
+    document.getElementById('gpt-f1-bar').style.width = (gpt.macroF1 * 100).toFixed(1) + '%';
+  }
+  if (deb) {
+    document.getElementById('deb-f1-val').textContent = deb.macroF1.toFixed(2);
+    document.getElementById('deb-f1-bar').style.width = (deb.macroF1 * 100).toFixed(1) + '%';
+    document.getElementById('hero-f1').textContent    = deb.macroF1.toFixed(2);
+  } else {
+    document.getElementById('deberta-row').style.opacity = '0.4';
+    document.getElementById('deb-f1-val').textContent    = 'N/A';
+    // Fall back to GPT F1 in hero
+    if (gpt) document.getElementById('hero-f1').textContent = gpt.macroF1.toFixed(2);
+  }
+
+  // Best model per-class breakdown
+  const best = deb || gpt || kw;
+  const bestName = deb ? 'DeBERTa NLI' : gpt ? 'GPT Zero-Shot' : 'Keyword Baseline';
+  if (best?.perClass) {
+    document.getElementById('best-model-label').textContent = bestName;
+    const themes = ['renewable','emissions','biodiversity','water','policy'];
+    const labels = {'renewable':'Renewable','emissions':'Emissions','biodiversity':'Biodiversity','water':'Water','policy':'Policy'};
+    document.getElementById('perclass-bars').innerHTML = themes.map(t => {
+      const f1 = best.perClass[t]?.f1 ?? 0;
+      return `<div class="bar-wrap">
+        <div class="bar-label"><span>${labels[t]}</span><span>${f1.toFixed(2)}</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${(f1*100).toFixed(1)}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // G-Eval from eval file
+  if (data.geval) {
+    const g = data.geval;
+    if (g.relevance) document.getElementById('geval-rel').textContent = g.relevance.toFixed(1);
+    if (g.coherence) {
+      document.getElementById('geval-coh').textContent = g.coherence.toFixed(1);
+      document.getElementById('hero-coherence').textContent = 'G-Eval Coherence: ' + g.coherence.toFixed(1);
+    }
+    if (g.grounding)  document.getElementById('geval-grd').textContent = g.grounding.toFixed(1);
+  }
+
+  document.getElementById('eval-computing').style.display = 'none';
+}
+
+async function pollEval() {
+  const data = await fetchEval();
+  if (data) {
+    applyEval(data);
+    document.getElementById('status-dot').className  = 'dot dot-green';
+    document.getElementById('status-text').textContent = 'Eval ready';
+  } else {
+    document.getElementById('eval-computing').style.display = 'block';
+    document.getElementById('status-dot').className  = 'dot dot-amber';
+    document.getElementById('status-text').textContent = 'Computing metrics…';
+    setTimeout(pollEval, 5000);
+  }
+}
+
+// ── Analysis ──────────────────────────────────────────────────────────────
+async function runAnalysis() {
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Analysing…';
+
+  const body = {
+    theme:      document.getElementById('sel-theme').value,
+    region:     document.getElementById('sel-region').value,
+    timeWindow: document.getElementById('sel-time').value,
+  };
+
+  try {
+    const r = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) throw new Error('Server error ' + r.status);
+    const data = await r.json();
+
+    // Summary
+    document.getElementById('summary-text').textContent = data.summary || '—';
+    document.getElementById('summary-text').classList.remove('placeholder');
+
+    // Precision badge
+    if (data.keywordPrecision != null) {
+      const pct = Math.round(data.keywordPrecision * 100);
+      const badge = document.getElementById('precision-badge');
+      badge.textContent = 'Live precision: ' + pct + '%';
+      badge.style.display = 'inline';
+    }
+
+    // Articles
+    if (data.articles?.length) {
+      document.getElementById('article-count').textContent = data.articles.length + ' articles';
+      document.getElementById('article-count').style.display = 'inline';
+      document.getElementById('articles-list').innerHTML = data.articles.map(a =>
+        `<div class="article-item">
+          <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
+          <span class="article-meta">${a.source} · ${new Date(a.date).toLocaleDateString()}</span>
+        </div>`
+      ).join('');
+    }
+
+    // Chart
+    const { labels, values } = data.chartData || {};
+    if (labels?.length) {
+      document.getElementById('chart-placeholder').style.display = 'none';
+      const ctx = document.getElementById('trend-chart').getContext('2d');
+      if (trendChart) trendChart.destroy();
+      trendChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Articles',
+            data: values,
+            backgroundColor: 'rgba(64,145,108,.5)',
+            borderColor: '#40916c',
+            borderWidth: 1,
+            borderRadius: 4,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: 'rgba(245,240,232,.5)' }, grid: { color: 'rgba(255,255,255,.06)' } },
+            x: { ticks: { color: 'rgba(245,240,232,.5)' }, grid: { display: false } },
+          },
+        },
+      });
+    }
+
+    // Eval status
+    if (data.evalReady) {
+      document.getElementById('status-dot').className = 'dot dot-green';
+      document.getElementById('status-text').textContent = 'Eval ready';
+    }
+
+    // Re-fetch eval after 4s to pick up G-Eval scores
+    setTimeout(async () => {
+      const evalData = await fetchEval();
+      if (evalData) applyEval(evalData);
+    }, 4000);
+
+  } catch (err) {
+    document.getElementById('summary-text').textContent = 'Error: ' + err.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Analyse Now';
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', pollEval);
+</script>
+</body>
+</html>
