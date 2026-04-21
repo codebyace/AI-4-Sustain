@@ -1,8 +1,8 @@
 'use strict';
 const axios = require('axios');
 
-const HF_MODEL = 'MoritzLaurer/deberta-v3-base-zeroshot-v1';
-const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
+const HF_MODEL = 'MoritzLaurer/deberta-v3-base-zeroshot-v2';
+const HF_API   = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}`;
 const LABELS   = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
 
 const LABEL_MAP = {
@@ -34,14 +34,16 @@ async function classifyOne(text, retries = 3) {
       const best = res.data.labels?.[0];
       return best ? (LABEL_MAP[best] || best) : null;
     } catch (err) {
+      const status = err.response?.status;
       const msg = (err.response?.data?.error || err.message || '').toString().slice(0, 200);
       if (msg.includes('loading') && attempt < retries - 1) {
         const wait = (attempt + 1) * 8000;
         await new Promise(r => setTimeout(r, wait));
         continue;
       }
-      console.error('[NLI] error:', msg);
-      return null;
+      console.error(`[NLI] error (attempt ${attempt + 1}, status ${status}):`, msg);
+      if (attempt === retries - 1) return null;
+      await new Promise(r => setTimeout(r, 2000));
     }
   }
   return null;

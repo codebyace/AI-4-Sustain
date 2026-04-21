@@ -89,7 +89,7 @@ async function runEvaluation() {
   }
 }
 
-const EVAL_MODEL_VERSION = 'deberta-v3-base-zeroshot-v2';
+const EVAL_MODEL_VERSION = 'deberta-v3-base-zeroshot-v2-router';
 
 async function runOnce() {
   if (fs.existsSync(RESULTS_PATH)) {
