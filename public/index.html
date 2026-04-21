@@ -23,6 +23,11 @@
   --border:#e0ebe4;
   --radius:12px;
   --shadow:0 2px 16px rgba(26,61,43,.08);
+  --t-renewable:#4ade80;
+  --t-biodiversity:#2dd4bf;
+  --t-water:#60a5fa;
+  --t-emissions:#fb923c;
+  --t-policy:#c084fc;
 }
 html{scroll-behavior:smooth}
 body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--cream);color:var(--text);line-height:1.6;font-size:16px}
@@ -85,16 +90,16 @@ hr.div{border:none;border-top:1px solid var(--border);max-width:1500px;margin:0 
 /* ── DEMO ── */
 #demo-wrap{background:var(--green);border-radius:20px;max-width:1500px;margin:0 auto;padding:3rem 4rem}
 #demo-wrap h2{color:var(--cream)}
-#demo-wrap .sec-tag{background:rgba(201,168,76,.15);color:var(--gold)}
+#demo-wrap .sec-tag{background:rgba(157,224,178,.12);color:#9de0b2}
 #demo-wrap .lead{color:rgba(250,248,244,.65)}
 .demo-grid{display:grid;grid-template-columns:300px 1fr;gap:2rem;margin-top:1.75rem;align-items:start}
 @media(max-width:760px){.demo-grid{grid-template-columns:1fr}}
 .ctrl-panel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
-.ctrl-lbl{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(201,168,76,.85);margin-bottom:.3rem}
+.ctrl-lbl{font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(157,224,178,.85);margin-bottom:.3rem}
 .ctrl-sel{width:100%;padding:.65rem .9rem;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);color:var(--cream);font-size:.88rem;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;appearance:none;cursor:pointer}
-.ctrl-sel:focus{outline:none;border-color:var(--gold)}
+.ctrl-sel:focus{outline:none;border-color:#9de0b2}
 .ctrl-sel option{background:var(--green);color:var(--cream)}
-.run-btn{width:100%;padding:.8rem;background:var(--gold);color:var(--green);font-weight:700;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;transition:opacity .2s,transform .15s;margin-top:.25rem;letter-spacing:.2px}
+.run-btn{width:100%;padding:.8rem;background:#9de0b2;color:var(--green);font-weight:700;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;transition:opacity .2s,transform .15s;margin-top:.25rem;letter-spacing:.2px}
 .run-btn:hover:not(:disabled){opacity:.9;transform:translateY(-1px)}
 .run-btn:disabled{opacity:.45;cursor:not-allowed}
 .status-row{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:rgba(250,248,244,.55);margin-top:.15rem}
@@ -104,9 +109,9 @@ hr.div{border:none;border-top:1px solid var(--border);max-width:1500px;margin:0 
 /* ── OUTPUT ── */
 .out-col{display:flex;flex-direction:column;gap:1.25rem}
 .out-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);padding:1.25rem}
-.out-card-head{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(201,168,76,.8);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.out-card-head{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(157,224,178,.8);margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
 .badge{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25);color:#4ade80;font-size:.7rem;padding:.15rem .6rem;border-radius:100px;font-weight:600}
-.badge-amber{background:rgba(232,227,213,.1);border-color:rgba(232,227,213,.25);color:var(--gold)}
+.badge-amber{background:rgba(157,224,178,.1);border-color:rgba(157,224,178,.25);color:#9de0b2}
 #summary-text{font-size:.875rem;line-height:1.75;color:rgba(250,248,244,.82);white-space:pre-wrap}
 .placeholder{color:rgba(250,248,244,.28);font-size:.85rem;font-style:italic}
 
@@ -119,9 +124,9 @@ hr.div{border:none;border-top:1px solid var(--border);max-width:1500px;margin:0 
 .articles-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
 .art-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:.65rem .9rem}
 .art-item a{color:rgba(250,248,244,.88);text-decoration:none;font-size:.82rem;font-weight:500;display:block;margin-bottom:.15rem;line-height:1.4}
-.art-item a:hover{color:var(--gold)}
+.art-item a:hover{color:#9de0b2}
 .art-meta{font-size:.7rem;color:rgba(250,248,244,.38)}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.35rem}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.15);border-top-color:#9de0b2;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.35rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── RESEARCH ── */
@@ -481,6 +486,7 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
 
 <script>
 let trendChart = null;
+const THEME_COLORS = {renewable:'#4ade80',biodiversity:'#2dd4bf',water:'#60a5fa',emissions:'#fb923c',policy:'#c084fc'};
 
 async function fetchEval() {
   try {
@@ -522,9 +528,10 @@ function applyEval(data) {
     const labels = {renewable:'Renewable Energy',emissions:'Emissions & Carbon',biodiversity:'Biodiversity',water:'Water & Oceans',policy:'Climate Policy'};
     document.getElementById('perclass-bars').innerHTML = themes.map(t => {
       const f1 = best.perClass[t]?.f1 ?? 0;
+      const c = THEME_COLORS[t] || 'var(--green-light)';
       return `<div class="bar-wrap">
-        <div class="bar-lbl"><span>${labels[t]}</span><span>${f1.toFixed(2)}</span></div>
-        <div class="bar-bg"><div class="bar-fill" style="width:${(f1*100).toFixed(1)}%"></div></div>
+        <div class="bar-lbl"><span style="display:inline-flex;align-items:center;gap:.4rem"><span style="width:8px;height:8px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span>${labels[t]}</span><span style="color:${c}">${f1.toFixed(2)}</span></div>
+        <div class="bar-bg"><div class="bar-fill" style="width:${(f1*100).toFixed(1)}%;background:${c}88"></div></div>
       </div>`;
     }).join('');
   }
@@ -614,8 +621,9 @@ async function runAnalysis() {
     if (data.articles?.length) {
       document.getElementById('article-count').textContent = data.articles.length+' articles';
       document.getElementById('article-count').style.display = 'inline';
+      const themeColor = THEME_COLORS[body.theme] || '#9de0b2';
       document.getElementById('articles-list').innerHTML = data.articles.map(a =>
-        `<div class="art-item">
+        `<div class="art-item" style="border-left:3px solid ${themeColor}40;padding-left:.75rem">
           <a href="${a.url}" target="_blank" rel="noopener">${a.title}</a>
           <span class="art-meta">${a.source} &middot; ${new Date(a.date).toLocaleDateString('en-GB')}</span>
         </div>`
