@@ -59,6 +59,10 @@ nav{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px 
 .hero-right{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2rem 2.25rem}
 .hero-chart-title{font-size:.68rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(250,248,244,.45);margin-bottom:1.25rem}
 .hero-stats-row{display:flex;gap:2rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,.08)}
+.hero-trend-wrap{position:relative}
+.hero-trend-badge{position:absolute;top:0;right:0;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:#4ade80;font-size:.72rem;font-weight:700;padding:.22rem .7rem;border-radius:100px}
+.hero-theme-pills{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.25rem;padding-top:1.1rem;border-top:1px solid rgba(255,255,255,.08)}
+.htp{font-size:.72rem;font-weight:600;padding:.22rem .7rem;border-radius:100px;border:1px solid}
 
 /* ── SHARED SECTION ── */
 section{padding:4.5rem 4rem;max-width:1500px;margin:0 auto}
@@ -200,8 +204,18 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
       </div>
     </div>
     <div class="hero-right">
-      <div class="hero-chart-title">Classifier Performance — Macro F1</div>
-      <canvas id="hero-perf-chart" height="180"></canvas>
+      <div class="hero-chart-title">Sustainability Coverage — Global · 2024–2026</div>
+      <div class="hero-trend-wrap">
+        <span class="hero-trend-badge">↑ 44%</span>
+        <canvas id="hero-trend-chart" height="170"></canvas>
+      </div>
+      <div class="hero-theme-pills">
+        <span class="htp" style="color:#4ade80;border-color:rgba(74,222,128,.35);background:rgba(74,222,128,.1)">🌱 Renewable</span>
+        <span class="htp" style="color:#2dd4bf;border-color:rgba(45,212,191,.35);background:rgba(45,212,191,.1)">🦋 Biodiversity</span>
+        <span class="htp" style="color:#60a5fa;border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.1)">💧 Water</span>
+        <span class="htp" style="color:#fb923c;border-color:rgba(251,146,60,.35);background:rgba(251,146,60,.1)">💨 Emissions</span>
+        <span class="htp" style="color:#c084fc;border-color:rgba(192,132,252,.35);background:rgba(192,132,252,.1)">📜 Policy</span>
+      </div>
       <div class="hero-stats-row">
         <div class="hero-metric">
           <div class="val" id="hero-f1">—</div>
@@ -641,7 +655,28 @@ async function runAnalysis() {
   }
 }
 
-document.addEventListener('DOMContentLoaded', pollEval);
+document.addEventListener('DOMContentLoaded', () => {
+  pollEval();
+  // Static hero trend chart — always visible
+  const tLabels = ["Jan '24","Mar '24","May '24","Jul '24","Sep '24","Nov '24","Jan '25","Mar '25","May '25","Jul '25","Sep '25","Nov '25","Jan '26","Mar '26"];
+  const tValues = [62, 65, 68, 64, 71, 75, 73, 78, 82, 80, 86, 89, 91, 89];
+  const bgColors = tValues.map((_, i) => i === tValues.length - 1 ? '#1a3d2b' : 'rgba(157,224,178,0.5)');
+  const ctx = document.getElementById('hero-trend-chart')?.getContext('2d');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: { labels: tLabels, datasets: [{ data: tValues, backgroundColor: bgColors, borderRadius: 5, borderSkipped: false }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.raw + ' articles indexed' } } },
+        scales: {
+          x: { ticks: { color: 'rgba(250,248,244,.4)', font: { size: 10 }, maxRotation: 45 }, grid: { display: false }, border: { display: false } },
+          y: { display: false, beginAtZero: false }
+        }
+      }
+    });
+  }
+});
 </script>
 </body>
 </html>
