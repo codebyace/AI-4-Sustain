@@ -31,24 +31,20 @@ async function seedArticles() {
     console.log(`[Seed] ${theme}: need ${needed} more articles`);
 
     try {
-      for (const tw of ['30d', '90d', '365d']) {
-        const alreadyHave = countByTheme[theme] + toAdd.filter(a => a.label === theme).length;
-        if (alreadyHave >= TARGET) break;
-        const articles = await fetchArticles(theme, 'global', tw);
-        for (const a of articles) {
-          const alreadyHave2 = countByTheme[theme] + toAdd.filter(a => a.label === theme).length;
-          if (alreadyHave2 >= TARGET) break;
-          if (!seenUrls.has(a.url) && a.title.length > 10) {
-            seenUrls.add(a.url);
-            toAdd.push({ id: id++, title: a.title, snippet: a.snippet || a.title, label: theme, url: a.url, source: a.source, date: a.date });
-          }
+      // Single request per theme with wide window — avoids 429 rate limiting
+      const articles = await fetchArticles(theme, 'global', '1y');
+      for (const a of articles) {
+        const have = countByTheme[theme] + toAdd.filter(x => x.label === theme).length;
+        if (have >= TARGET) break;
+        if (!seenUrls.has(a.url) && a.title.length > 10) {
+          seenUrls.add(a.url);
+          toAdd.push({ id: id++, title: a.title, snippet: a.snippet || a.title, label: theme, url: a.url, source: a.source, date: a.date });
         }
-        await new Promise(r => setTimeout(r, 3000)); // 3s between GDELT requests to avoid 429
       }
     } catch (err) {
       console.warn(`[Seed] Failed to fetch ${theme}:`, err.message);
     }
-    await new Promise(r => setTimeout(r, 2000)); // 2s between themes
+    await new Promise(r => setTimeout(r, 5000)); // 5s between themes to avoid 429
   }
 
   const final = [...existing, ...toAdd];
