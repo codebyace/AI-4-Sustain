@@ -89,7 +89,7 @@ async function runEvaluation() {
   }
 }
 
-const EVAL_MODEL_VERSION = 'cross-encoder-nli-deberta-v3-small-v2';
+const EVAL_MODEL_VERSION = 'bart-large-mnli-v1';
 
 async function runOnce() {
   if (fs.existsSync(RESULTS_PATH)) {
