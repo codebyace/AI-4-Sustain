@@ -89,7 +89,7 @@ async function runEvaluation() {
   }
 }
 
-const EVAL_MODEL_VERSION = 'bart-large-mnli-v1';
+const EVAL_MODEL_VERSION = 'deberta-v3-base-zeroshot-v2';
 
 async function runOnce() {
   if (fs.existsSync(RESULTS_PATH)) {

@@ -1,7 +1,7 @@
 'use strict';
 const axios = require('axios');
 
-const HF_MODEL = 'facebook/bart-large-mnli';
+const HF_MODEL = 'MoritzLaurer/deberta-v3-base-zeroshot-v1';
 const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
 const LABELS   = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
 
