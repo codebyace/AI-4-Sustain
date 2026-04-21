@@ -165,6 +165,19 @@ hr.div{border:none;border-top:1px solid var(--border);max-width:1500px;margin:0 
 .team-card h4{font-size:.88rem;font-weight:700;color:var(--green);margin-bottom:.2rem}
 .team-card p{font-size:.74rem;color:var(--muted)}
 
+/* ── FUTURE SCOPE ── */
+.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
+@media(max-width:760px){.scope-grid{grid-template-columns:1fr}}
+.scope-card{background:var(--white);border-radius:var(--radius);padding:2rem 1.75rem;border:1px solid var(--border);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.scope-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.scope-card:nth-child(1)::before{background:var(--t-renewable)}
+.scope-card:nth-child(2)::before{background:var(--t-water)}
+.scope-card:nth-child(3)::before{background:var(--t-policy)}
+.scope-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1.1rem}
+.scope-card h4{font-size:1.05rem;font-weight:700;color:var(--green);margin-bottom:.5rem}
+.scope-card p{font-size:.84rem;color:var(--muted);line-height:1.65}
+.scope-tag{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:.2rem .65rem;border-radius:4px;margin-bottom:.85rem}
+
 /* ── FOOTER ── */
 footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;padding:3rem 2rem}
 .footer-logo{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:.75rem}
@@ -187,6 +200,7 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
     <li><a href="#rq">Research</a></li>
     <li><a href="#methods">Methods</a></li>
     <li><a href="#team">Team</a></li>
+    <li><a href="#future">Future</a></li>
   </ul>
   <a class="nav-github" href="https://github.com/codebyace/AI-4-Sustain" target="_blank" rel="noopener">
     View on GitHub <span>↗</span>
@@ -471,6 +485,42 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
     <div class="team-card"><div class="avatar">🔬</div><h4>Sudhiksha Matre</h4><p>RAG Architecture</p></div>
     <div class="team-card"><div class="avatar">🌍</div><h4>Jahanvi Joshi</h4><p>Environmental Domain</p></div>
     <div class="team-card"><div class="avatar">⚙️</div><h4>Pranati Sukh</h4><p>Backend &amp; Deployment</p></div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- FUTURE SCOPE -->
+<section id="future">
+  <div class="sec-tag">What's Next</div>
+  <h2>Future Scope</h2>
+  <p class="lead">Three high-impact directions to extend AI4Sustain beyond the current prototype.</p>
+  <div class="accent-line"></div>
+  <div class="scope-grid">
+    <div class="scope-card">
+      <div class="scope-icon" style="background:#e8fdf0;color:#059669">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <span class="scope-tag" style="background:#e8fdf0;color:#059669">Model</span>
+      <h4>Fine-tuned Classifier</h4>
+      <p>Train a domain-specific sustainability classifier on a large labeled corpus. A fine-tuned model would significantly outperform zero-shot classification, especially on nuanced or overlapping themes like climate policy and carbon emissions.</p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-icon" style="background:#eff6ff;color:#2563eb">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      </div>
+      <span class="scope-tag" style="background:#eff6ff;color:#2563eb">RAG</span>
+      <h4>Vector Database Retrieval</h4>
+      <p>Replace top-N recency retrieval with semantic search using a vector database such as Pinecone or Weaviate. Embedding-based retrieval would surface the most contextually relevant articles for each query, producing richer and better-grounded summaries.</p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-icon" style="background:#faf5ff;color:#7c3aed">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <span class="scope-tag" style="background:#faf5ff;color:#7c3aed">Analysis</span>
+      <h4>Sentiment Analysis</h4>
+      <p>Score the tone of sustainability coverage — positive, neutral, or negative — per theme over time. Tracking sentiment shifts alongside article volume would reveal how global narratives around climate and environment are evolving.</p>
+    </div>
   </div>
 </section>
 
