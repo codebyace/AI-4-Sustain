@@ -10,7 +10,7 @@ import sys
 
 app = Flask(__name__)
 
-MODEL = 'MoritzLaurer/deberta-v3-base-zeroshot-v2'
+MODEL = 'MoritzLaurer/deberta-v3-base-zeroshot-v1'
 LABELS = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy']
 LABEL_MAP = {
     'renewable energy': 'renewable',
