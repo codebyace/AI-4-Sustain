@@ -10,6 +10,7 @@ const { fetchArticles }       = require('./gdelt');
 const { keywordClassify }     = require('./classifier');
 const { gEval }               = require('./geval');
 const { runOnce }             = require('./eval_runner');
+const { seedOnce }            = require('./seed_articles');
 
 const app    = express();
 const PORT   = process.env.PORT || 3000;
@@ -115,5 +116,5 @@ app.post('/api/analyze', async (req, res) => {
 // ── Start ──────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`[AI4Sustain] Server running on http://localhost:${PORT}`);
-  runOnce();
+  seedOnce().then(() => runOnce());
 });
