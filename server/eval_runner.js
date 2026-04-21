@@ -3,6 +3,7 @@ const fs   = require('fs');
 const path = require('path');
 
 const { keywordClassifyBatch, gptClassify, THEMES } = require('./classifier');
+const { classifyWithDeBERTa } = require('./deberta');
 const { gEval } = require('./geval');
 const OpenAI = require('openai');
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -54,19 +55,16 @@ async function runEvaluation() {
   results.classifiers.gpt = computeMetrics(gptPreds, labels);
   console.log(`[Eval] GPT zero-shot done. Macro F1: ${results.classifiers.gpt.macroF1}`);
 
-  // DeBERTa NLI — static benchmark scores (cross-encoder/nli-deberta-v3-small)
-  results.classifiers.deberta = {
-    accuracy: 0.7679,
-    macroF1:  0.7520,
-    perClass: {
-      renewable:   { precision: 0.8200, recall: 0.7800, f1: 0.7995 },
-      emissions:   { precision: 0.7600, recall: 0.7200, f1: 0.7395 },
-      biodiversity:{ precision: 0.7400, recall: 0.7000, f1: 0.7194 },
-      water:       { precision: 0.7800, recall: 0.7400, f1: 0.7595 },
-      policy:      { precision: 0.7200, recall: 0.6800, f1: 0.6994 },
-    },
-  };
-  console.log(`[Eval] DeBERTa (static benchmark). Macro F1: ${results.classifiers.deberta.macroF1}`);
+  // DeBERTa zero-shot NLI via local Python server (server/deberta_server.py)
+  const texts = articles.map(a => `${a.title} ${a.snippet || ''}`);
+  const debPreds = await classifyWithDeBERTa(texts);
+  if (debPreds && debPreds.length === articles.length) {
+    results.classifiers.deberta = computeMetrics(debPreds, labels);
+    console.log(`[Eval] DeBERTa done. Macro F1: ${results.classifiers.deberta.macroF1}`);
+  } else {
+    console.warn('[Eval] DeBERTa unavailable — skipping.');
+    results.classifiers.deberta = null;
+  }
 
   fs.writeFileSync(RESULTS_PATH, JSON.stringify(results, null, 2));
   console.log('[Eval] Results written to data/eval_results.json');
@@ -91,7 +89,7 @@ async function runEvaluation() {
   }
 }
 
-const EVAL_MODEL_VERSION = 'deberta-static-v1';
+const EVAL_MODEL_VERSION = 'deberta-local-v1';
 
 async function runOnce() {
   if (fs.existsSync(RESULTS_PATH)) {
