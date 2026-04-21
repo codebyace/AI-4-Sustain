@@ -1,10 +1,13 @@
 'use strict';
 const axios = require('axios');
 
-const HF_MODEL = 'MoritzLaurer/deberta-v3-base-zeroshot-v2';
-const HF_API   = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}`;
-const LABELS   = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
+// cross-encoder/nli-deberta-v3-small is a genuine DeBERTa NLI model available
+// on HF's free serverless API. We implement zero-shot classification manually:
+// for each candidate label, score entailment probability, pick the highest.
+const HF_MODEL = 'cross-encoder/nli-deberta-v3-small';
+const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
 
+const CANDIDATE_LABELS = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
 const LABEL_MAP = {
   'renewable energy': 'renewable',
   'carbon emissions':  'emissions',
@@ -13,44 +16,67 @@ const LABEL_MAP = {
   'climate policy':    'policy',
 };
 
-async function classifyOne(text, retries = 3) {
-  const headers = { 'Content-Type': 'application/json' };
-  if (process.env.HF_TOKEN) headers['Authorization'] = `Bearer ${process.env.HF_TOKEN}`;
+function getHeaders() {
+  const h = { 'Content-Type': 'application/json' };
+  if (process.env.HF_TOKEN) h['Authorization'] = `Bearer ${process.env.HF_TOKEN}`;
+  return h;
+}
 
+// Extract entailment score from whatever shape HF returns
+function entailmentScore(result) {
+  const flat = Array.isArray(result?.[0]) ? result[0] : result;
+  if (!Array.isArray(flat)) return 0;
+  const row = flat.find(r => r.label?.toUpperCase() === 'ENTAILMENT');
+  return row?.score ?? 0;
+}
+
+// Score one (premise, hypothesis) pair — returns entailment probability
+async function scoreOne(premise, hypothesis, retries = 3) {
+  const input = `${premise.slice(0, 400)} [SEP] ${hypothesis}`;
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      const res = await axios.post(HF_API, {
-        inputs: text.slice(0, 512),
-        parameters: { candidate_labels: LABELS },
-      }, { headers, timeout: 40000 });
-
+      const res = await axios.post(HF_API, { inputs: input }, { headers: getHeaders(), timeout: 35000 });
       if (res.data?.error?.includes?.('loading')) {
         const wait = (attempt + 1) * 8000;
         console.log(`[NLI] Model loading, waiting ${wait / 1000}s…`);
         await new Promise(r => setTimeout(r, wait));
         continue;
       }
-
-      const best = res.data.labels?.[0];
-      return best ? (LABEL_MAP[best] || best) : null;
+      return entailmentScore(res.data);
     } catch (err) {
-      const status = err.response?.status;
       const msg = (err.response?.data?.error || err.message || '').toString().slice(0, 200);
       if (msg.includes('loading') && attempt < retries - 1) {
-        const wait = (attempt + 1) * 8000;
-        await new Promise(r => setTimeout(r, wait));
+        await new Promise(r => setTimeout(r, (attempt + 1) * 8000));
         continue;
       }
-      console.error(`[NLI] error (attempt ${attempt + 1}, status ${status}):`, msg);
-      if (attempt === retries - 1) return null;
-      await new Promise(r => setTimeout(r, 2000));
+      if (attempt < retries - 1) {
+        await new Promise(r => setTimeout(r, 1500));
+        continue;
+      }
+      console.error(`[NLI] scoreOne error (attempt ${attempt + 1}, status ${err.response?.status}):`, msg);
+      return -1; // sentinel for total failure
     }
   }
-  return null;
+  return -1;
+}
+
+async function classifyOne(text) {
+  const scores = {};
+  let allFailed = true;
+  for (const label of CANDIDATE_LABELS) {
+    const s = await scoreOne(text, `This text is about ${label}.`);
+    scores[label] = s;
+    if (s >= 0) allFailed = false;
+    await new Promise(r => setTimeout(r, 150));
+  }
+  if (allFailed) return null;
+  // treat -1 (failure) as 0 when picking best
+  const best = CANDIDATE_LABELS.reduce((a, b) => (scores[a] ?? 0) >= (scores[b] ?? 0) ? a : b);
+  return LABEL_MAP[best] || best;
 }
 
 async function classifyWithDeBERTa(texts) {
-  console.log(`[NLI] Classifying ${texts.length} texts via HuggingFace (${HF_MODEL})…`);
+  console.log(`[NLI] Zero-shot NLI via ${HF_MODEL} on ${texts.length} texts…`);
   const predictions = [];
   let failCount = 0;
 
@@ -58,7 +84,7 @@ async function classifyWithDeBERTa(texts) {
     const pred = await classifyOne(texts[i]);
     if (pred === null) failCount++;
     predictions.push(pred || 'renewable');
-    if (i < texts.length - 1) await new Promise(r => setTimeout(r, 500));
+    if (i < texts.length - 1) await new Promise(r => setTimeout(r, 300));
   }
 
   if (failCount === texts.length) {
