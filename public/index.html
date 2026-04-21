@@ -157,6 +157,9 @@ hr.div{border:none;border-top:1px solid var(--border);max-width:1500px;margin:0 
 .gscore .gval{font-size:1.15rem;font-family:'DM Serif Display',serif;color:var(--green)}
 .gscore .glbl{font-size:.68rem;color:var(--muted)}
 .computing{color:var(--muted);font-size:.8rem;font-style:italic}
+.compare-wrap{position:relative;height:170px;margin-top:1.1rem}
+.radar-wrap{position:relative;height:230px}
+.geval-chart-wrap{position:relative;height:120px;margin-top:.85rem}
 
 /* ── TEAM ── */
 .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.25rem;margin-top:2rem}
@@ -166,7 +169,7 @@ hr.div{border:none;border-top:1px solid var(--border);max-width:1500px;margin:0 
 .team-card p{font-size:.74rem;color:var(--muted)}
 
 /* ── FUTURE SCOPE ── */
-.scope-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2rem}
+.scope-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;margin-top:2rem}
 @media(max-width:760px){.scope-grid{grid-template-columns:1fr}}
 .scope-card{background:var(--white);border-radius:var(--radius);padding:2rem 1.75rem;border:1px solid var(--border);box-shadow:var(--shadow);position:relative;overflow:hidden}
 .scope-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
@@ -438,7 +441,7 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
   <div class="eval-grid">
     <div class="eval-card">
       <h4>Classifier Comparison</h4>
-      <div class="eval-sub">Macro F1 on 100 labeled sustainability articles</div>
+      <div class="eval-sub">Macro F1 on labeled sustainability articles</div>
       <div class="bar-wrap">
         <div class="bar-lbl"><span>Keyword Baseline</span><span id="kw-f1-val">—</span></div>
         <div class="bar-bg"><div class="bar-fill" id="kw-f1-bar" style="width:0%"></div></div>
@@ -452,21 +455,23 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
         <div class="bar-bg"><div class="bar-fill" id="deb-f1-bar" style="width:0%;background:linear-gradient(90deg,#7c3aed,#a78bfa)"></div></div>
       </div>
       <div id="eval-computing" class="computing" style="display:none">Computing metrics on startup — please wait…</div>
+      <div class="compare-wrap"><canvas id="compare-chart"></canvas></div>
     </div>
     <div class="eval-card">
-      <h4>Per-Class F1 — Best Model</h4>
+      <h4>Theme Accuracy — Best Model</h4>
       <div class="eval-sub" id="best-model-label">Awaiting evaluation…</div>
-      <div id="perclass-bars"><div class="computing">Loads automatically after startup evaluation completes.</div></div>
+      <div class="radar-wrap"><canvas id="radar-chart"></canvas></div>
+      <div id="perclass-bars" style="display:none"></div>
     </div>
     <div class="eval-card">
       <h4>G-Eval Summary Quality</h4>
-      <div class="eval-sub">GPT-4o-mini judge · 1–5 scale · updates after each analysis</div>
+      <div class="eval-sub">GPT-4o-mini judge · 1–5 scale</div>
       <div class="geval-row">
         <div class="gscore"><div class="gval" id="geval-rel">—</div><div class="glbl">Relevance</div></div>
         <div class="gscore"><div class="gval" id="geval-coh">—</div><div class="glbl">Coherence</div></div>
         <div class="gscore"><div class="gval" id="geval-grd">—</div><div class="glbl">Grounding</div></div>
       </div>
-      <p style="font-size:.76rem;color:var(--muted);margin-top:1rem">G-Eval scores are generated after each analysis run and refresh automatically.</p>
+      <div class="geval-chart-wrap"><canvas id="geval-chart"></canvas></div>
     </div>
   </div>
 </section>
@@ -498,28 +503,20 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
   <div class="accent-line"></div>
   <div class="scope-grid">
     <div class="scope-card">
-      <div class="scope-icon" style="background:#e8fdf0;color:#059669">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      </div>
-      <span class="scope-tag" style="background:#e8fdf0;color:#059669">Model</span>
-      <h4>Fine-tuned Classifier</h4>
-      <p>Train a domain-specific sustainability classifier on a large labeled corpus. A fine-tuned model would significantly outperform zero-shot classification, especially on nuanced or overlapping themes like climate policy and carbon emissions.</p>
-    </div>
-    <div class="scope-card">
-      <div class="scope-icon" style="background:#eff6ff;color:#2563eb">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-      </div>
-      <span class="scope-tag" style="background:#eff6ff;color:#2563eb">RAG</span>
-      <h4>Vector Database Retrieval</h4>
-      <p>Replace top-N recency retrieval with semantic search using a vector database such as Pinecone or Weaviate. Embedding-based retrieval would surface the most contextually relevant articles for each query, producing richer and better-grounded summaries.</p>
-    </div>
-    <div class="scope-card">
       <div class="scope-icon" style="background:#faf5ff;color:#7c3aed">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       </div>
       <span class="scope-tag" style="background:#faf5ff;color:#7c3aed">Analysis</span>
       <h4>Sentiment Analysis</h4>
       <p>Score the tone of sustainability coverage — positive, neutral, or negative — per theme over time. Tracking sentiment shifts alongside article volume would reveal how global narratives around climate and environment are evolving.</p>
+    </div>
+    <div class="scope-card">
+      <div class="scope-icon" style="background:#e8fdf0;color:#059669">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="4"/><polyline points="6 10 12 4 18 10"/><line x1="4" y1="20" x2="20" y2="20"/></svg>
+      </div>
+      <span class="scope-tag" style="background:#e8fdf0;color:#059669">Dataset</span>
+      <h4>Scale to 300 Labeled Articles</h4>
+      <p>Growing the evaluation dataset from 100 to 300 labeled articles — 60 per theme — would significantly improve classifier benchmark reliability and reduce variance in per-class F1 scores, producing more robust and publishable results.</p>
     </div>
   </div>
 </section>
@@ -625,6 +622,96 @@ function applyEval(data) {
     });
   }
   document.getElementById('eval-computing').style.display = 'none';
+
+  const themeKeys   = ['renewable','emissions','biodiversity','water','policy'];
+  const themeLabels = ['Renewable','Emissions','Biodiversity','Water','Policy'];
+  const clrKw  = 'rgba(74,140,92,.7)';
+  const clrGpt = 'rgba(37,99,235,.7)';
+  const clrDeb = 'rgba(124,58,237,.7)';
+
+  // ── Visual 1: Grouped bar chart — per-theme F1 for all 3 classifiers ──────
+  // Shows where each model wins or struggles per sustainability theme
+  const compareCtx = document.getElementById('compare-chart')?.getContext('2d');
+  if (compareCtx && (kw || gpt || deb)) {
+    if (window._compareChart) window._compareChart.destroy();
+    const datasets = [];
+    if (kw?.perClass)  datasets.push({ label:'Keyword', data: themeKeys.map(t => kw.perClass[t]?.f1 ?? 0),  backgroundColor: clrKw,  borderRadius:4 });
+    if (gpt?.perClass) datasets.push({ label:'GPT',     data: themeKeys.map(t => gpt.perClass[t]?.f1 ?? 0), backgroundColor: clrGpt, borderRadius:4 });
+    if (deb?.perClass) datasets.push({ label:'DeBERTa', data: themeKeys.map(t => deb.perClass[t]?.f1 ?? 0), backgroundColor: clrDeb, borderRadius:4 });
+    window._compareChart = new Chart(compareCtx, {
+      type: 'bar',
+      data: { labels: themeLabels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: 'var(--muted)', font: { size: 11 } } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.raw.toFixed(2)}` } } },
+        scales: {
+          x: { ticks: { color: 'var(--muted)', font: { size: 11 } }, grid: { display: false } },
+          y: { min: 0, max: 1, ticks: { color: 'var(--muted)', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,.05)' } }
+        }
+      }
+    });
+  }
+
+  // ── Visual 2: Radar chart — best model's F1 across all 5 themes ───────────
+  // Pentagon shape: each axis = one theme; further out = higher F1
+  const best     = deb || gpt || kw;
+  const bestName = deb ? 'DeBERTa NLI' : gpt ? 'GPT Zero-Shot' : 'Keyword Baseline';
+  if (best?.perClass) {
+    document.getElementById('best-model-label').textContent = bestName;
+    const radarCtx = document.getElementById('radar-chart')?.getContext('2d');
+    if (radarCtx) {
+      if (window._radarChart) window._radarChart.destroy();
+      window._radarChart = new Chart(radarCtx, {
+        type: 'radar',
+        data: {
+          labels: themeLabels,
+          datasets: [{
+            label: bestName,
+            data: themeKeys.map(t => best.perClass[t]?.f1 ?? 0),
+            backgroundColor: 'rgba(74,140,92,.15)',
+            borderColor: 'rgba(74,140,92,.8)',
+            pointBackgroundColor: themeKeys.map(t => THEME_COLORS[t]),
+            pointRadius: 5, borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { r: { min: 0, max: 1, ticks: { stepSize: .25, color: 'var(--muted)', font: { size: 9 }, backdropColor: 'transparent' }, grid: { color: 'rgba(0,0,0,.08)' }, pointLabels: { color: 'var(--text)', font: { size: 12, weight: '600' } } } }
+        }
+      });
+    }
+  }
+
+  // ── Visual 3: G-Eval horizontal bars — relevance, coherence, grounding ────
+  // Shows RAG summary quality on three dimensions (scored 1-5 by GPT-4o-mini)
+  if (data.geval) {
+    const g = data.geval;
+    const gevalCtx = document.getElementById('geval-chart')?.getContext('2d');
+    if (gevalCtx && (g.relevance || g.coherence || g.grounding)) {
+      if (window._gevalChart) window._gevalChart.destroy();
+      window._gevalChart = new Chart(gevalCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Relevance','Coherence','Grounding'],
+          datasets: [{
+            data: [g.relevance ?? 0, g.coherence ?? 0, g.grounding ?? 0],
+            backgroundColor: ['rgba(74,222,128,.6)','rgba(96,165,250,.6)','rgba(192,132,252,.6)'],
+            borderColor:      ['#4ade80','#60a5fa','#c084fc'],
+            borderWidth: 1.5, borderRadius: 6,
+          }]
+        },
+        options: {
+          indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.raw.toFixed(1)} / 5` } } },
+          scales: {
+            x: { min: 0, max: 5, ticks: { color: 'var(--muted)', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,.05)' } },
+            y: { ticks: { color: 'var(--text)', font: { size: 12, weight: '600' } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+  }
 }
 
 async function pollEval() {
