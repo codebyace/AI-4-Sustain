@@ -16,7 +16,18 @@ const app    = express();
 const PORT   = process.env.PORT || 3000;
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const EVAL_PATH = path.resolve(__dirname, '../data/eval_results.json');
+const EVAL_PATH  = path.resolve(__dirname, '../data/eval_results.json');
+const TREND_PATH = path.resolve(__dirname, '../data/trend_data.json');
+
+function logTrend(theme, count) {
+  try {
+    const data = fs.existsSync(TREND_PATH) ? JSON.parse(fs.readFileSync(TREND_PATH, 'utf8')) : {};
+    const day  = new Date().toISOString().slice(0, 10);
+    if (!data[theme]) data[theme] = {};
+    data[theme][day] = (data[theme][day] || 0) + count;
+    fs.writeFileSync(TREND_PATH, JSON.stringify(data, null, 2));
+  } catch {}
+}
 
 app.use(express.json());
 app.use(express.static(path.resolve(__dirname, '../public')));
@@ -39,6 +50,14 @@ app.get('/api/eval', (_req, res) => {
   res.json({ status: 'computing' });
 });
 
+// ── GET /api/trends ───────────────────────────────────────────────────────
+app.get('/api/trends', (_req, res) => {
+  try {
+    const data = fs.existsSync(TREND_PATH) ? JSON.parse(fs.readFileSync(TREND_PATH, 'utf8')) : {};
+    res.json(data);
+  } catch { res.json({}); }
+});
+
 // ── POST /api/analyze ──────────────────────────────────────────────────────
 app.post('/api/analyze', async (req, res) => {
   const { theme = 'renewable', region = 'global', timeWindow = '30d' } = req.body;
@@ -46,6 +65,9 @@ app.post('/api/analyze', async (req, res) => {
   try {
     // 1. Fetch articles
     const articles = await fetchArticles(theme, region, timeWindow);
+
+    // Log trend data
+    logTrend(theme, articles.length);
 
     // 2. Build chart data (article volume per day for last 7 days)
     const now = Date.now();
