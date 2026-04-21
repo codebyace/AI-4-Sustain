@@ -1,10 +1,10 @@
 'use strict';
 const axios = require('axios');
-const { keywordClassify } = require('./classifier');
 
 const HF_MODEL = 'cross-encoder/nli-deberta-v3-small';
 const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
-const LABELS   = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
+
+const LABELS = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
 
 const LABEL_MAP = {
   'renewable energy': 'renewable',
@@ -14,36 +14,52 @@ const LABEL_MAP = {
   'climate policy':    'policy',
 };
 
+// Cross-encoder NLI models expect text pairs: (premise, hypothesis)
+// We send all 5 label hypotheses in one batched call and pick highest entailment
 async function classifyOne(text, retries = 3) {
   const headers = { 'Content-Type': 'application/json' };
   if (process.env.HF_TOKEN) headers['Authorization'] = `Bearer ${process.env.HF_TOKEN}`;
 
+  const inputs = LABELS.map(label => ({
+    text:      text.slice(0, 512),
+    text_pair: `This text is about ${label}.`,
+  }));
+
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
-      const res = await axios.post(HF_API, {
-        inputs: text.slice(0, 512),
-        parameters: { candidate_labels: LABELS },
-      }, { headers, timeout: 40000 });
+      const res = await axios.post(HF_API, { inputs }, { headers, timeout: 40000 });
 
-      // HF returns 503 with loading message as JSON
-      if (res.data?.error?.includes('loading')) {
+      // Handle model loading
+      if (res.data?.error?.includes?.('loading')) {
         const wait = (attempt + 1) * 8000;
-        console.log(`[DeBERTa API] Model loading, waiting ${wait/1000}s…`);
+        console.log(`[DeBERTa] Model loading, waiting ${wait / 1000}s…`);
         await new Promise(r => setTimeout(r, wait));
         continue;
       }
 
-      const best = res.data.labels?.[0];
-      return best ? (LABEL_MAP[best] || best) : null;
+      // res.data is an array of [{label, score}] per input pair
+      const results = res.data;
+      if (!Array.isArray(results) || results.length !== LABELS.length) return null;
+
+      // Each result is array of NLI classes; find ENTAILMENT score per label
+      let bestLabel = null, bestScore = -1;
+      for (let i = 0; i < LABELS.length; i++) {
+        const classScores = Array.isArray(results[i]) ? results[i] : [results[i]];
+        const entailment  = classScores.find(c => c.label?.toUpperCase().includes('ENTAIL'));
+        const score       = entailment?.score ?? 0;
+        if (score > bestScore) { bestScore = score; bestLabel = LABELS[i]; }
+      }
+
+      return bestLabel ? (LABEL_MAP[bestLabel] || bestLabel) : null;
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || '';
+      const msg = (err.response?.data?.error || err.message || '').toString().slice(0, 200);
       if (msg.includes('loading') && attempt < retries - 1) {
         const wait = (attempt + 1) * 8000;
-        console.log(`[DeBERTa API] Model loading (${attempt + 1}), waiting ${wait/1000}s…`);
+        console.log(`[DeBERTa] Loading retry ${attempt + 1}, waiting ${wait / 1000}s…`);
         await new Promise(r => setTimeout(r, wait));
         continue;
       }
-      console.warn(`[DeBERTa API] classifyOne failed (attempt ${attempt + 1}):`, msg.toString().slice(0, 120));
+      console.error('[DeBERTa] error:', msg);
       return null;
     }
   }
@@ -51,29 +67,23 @@ async function classifyOne(text, retries = 3) {
 }
 
 async function classifyWithDeBERTa(texts) {
-  console.log(`[DeBERTa API] Classifying ${texts.length} texts via HuggingFace (${HF_MODEL})…`);
+  console.log(`[DeBERTa] Classifying ${texts.length} texts via HuggingFace (${HF_MODEL})…`);
   const predictions = [];
-  let nullCount = 0;
+  let failCount = 0;
 
   for (let i = 0; i < texts.length; i++) {
-    let pred = await classifyOne(texts[i]);
-    if (!pred) {
-      // Fall back to keyword classifier for this article rather than aborting
-      pred = keywordClassify(texts[i]);
-      nullCount++;
-      console.warn(`[DeBERTa API] fallback to keyword at index ${i}: ${pred}`);
-    }
+    const pred = await classifyOne(texts[i]);
+    if (pred === null) { failCount++; }
     predictions.push(pred);
-    if (i < texts.length - 1) await new Promise(r => setTimeout(r, 400));
+    if (i < texts.length - 1) await new Promise(r => setTimeout(r, 500));
   }
 
-  const hfCount = texts.length - nullCount;
-  console.log(`[DeBERTa API] Done. ${hfCount}/${texts.length} from HF, ${nullCount} keyword fallbacks.`);
-  // Require at least 50% real HF predictions — otherwise score is not meaningful
-  if (hfCount < texts.length * 0.5) {
-    console.warn('[DeBERTa API] Too many fallbacks — discarding results to avoid misleading score.');
+  if (failCount === texts.length) {
+    console.error('[DeBERTa] All predictions failed — returning null.');
     return null;
   }
+
+  console.log(`[DeBERTa] Done. ${texts.length - failCount}/${texts.length} succeeded.`);
   return predictions;
 }
 
