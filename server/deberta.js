@@ -2,7 +2,7 @@
 const axios = require('axios');
 const { keywordClassify } = require('./classifier');
 
-const HF_MODEL = 'facebook/bart-large-mnli';
+const HF_MODEL = 'cross-encoder/nli-deberta-v3-small';
 const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
 const LABELS   = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
 
