@@ -31,22 +31,24 @@ async function seedArticles() {
     console.log(`[Seed] ${theme}: need ${needed} more articles`);
 
     try {
-      // Try multiple time windows to gather enough unique articles
       for (const tw of ['30d', '90d', '365d']) {
-        if (toAdd.filter(a => a.label === theme).length + (TARGET - needed) >= TARGET) break;
+        const alreadyHave = countByTheme[theme] + toAdd.filter(a => a.label === theme).length;
+        if (alreadyHave >= TARGET) break;
         const articles = await fetchArticles(theme, 'global', tw);
         for (const a of articles) {
-          if (toAdd.filter(x => x.label === theme).length >= needed) break;
+          const alreadyHave2 = countByTheme[theme] + toAdd.filter(a => a.label === theme).length;
+          if (alreadyHave2 >= TARGET) break;
           if (!seenUrls.has(a.url) && a.title.length > 10) {
             seenUrls.add(a.url);
             toAdd.push({ id: id++, title: a.title, snippet: a.snippet || a.title, label: theme, url: a.url, source: a.source, date: a.date });
           }
         }
-        await new Promise(r => setTimeout(r, 800));
+        await new Promise(r => setTimeout(r, 3000)); // 3s between GDELT requests to avoid 429
       }
     } catch (err) {
       console.warn(`[Seed] Failed to fetch ${theme}:`, err.message);
     }
+    await new Promise(r => setTimeout(r, 2000)); // 2s between themes
   }
 
   const final = [...existing, ...toAdd];

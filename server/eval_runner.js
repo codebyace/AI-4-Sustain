@@ -32,7 +32,7 @@ async function runEvaluation() {
   const labels   = articles.map(a => a.label);
   console.log(`[Eval] Starting evaluation on ${articles.length} articles...`);
 
-  const results = { timestamp: new Date().toISOString(), classifiers: {} };
+  const results = { timestamp: new Date().toISOString(), modelVersion: EVAL_MODEL_VERSION, classifiers: {} };
 
   // Keyword baseline
   const kwPreds = keywordClassifyBatch(articles);
@@ -89,14 +89,17 @@ async function runEvaluation() {
   }
 }
 
+const EVAL_MODEL_VERSION = 'deberta-v3-base-zeroshot-v1';
+
 async function runOnce() {
   if (fs.existsSync(RESULTS_PATH)) {
     try {
       const data = JSON.parse(fs.readFileSync(RESULTS_PATH, 'utf8'));
-      if (data.classifiers) {
+      if (data.classifiers && data.modelVersion === EVAL_MODEL_VERSION) {
         console.log('[Eval] Classifier results already exist — skipping evaluation.');
         return;
       }
+      console.log('[Eval] Model version changed or missing — re-running evaluation.');
     } catch {}
   }
   runEvaluation().catch(err => console.error('[Eval] Fatal error:', err.message));
