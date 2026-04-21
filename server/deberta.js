@@ -67,7 +67,13 @@ async function classifyWithDeBERTa(texts) {
     if (i < texts.length - 1) await new Promise(r => setTimeout(r, 400));
   }
 
-  console.log(`[DeBERTa API] Done. ${texts.length - nullCount}/${texts.length} from HF, ${nullCount} keyword fallbacks.`);
+  const hfCount = texts.length - nullCount;
+  console.log(`[DeBERTa API] Done. ${hfCount}/${texts.length} from HF, ${nullCount} keyword fallbacks.`);
+  // Require at least 50% real HF predictions — otherwise score is not meaningful
+  if (hfCount < texts.length * 0.5) {
+    console.warn('[DeBERTa API] Too many fallbacks — discarding results to avoid misleading score.');
+    return null;
+  }
   return predictions;
 }
 
