@@ -1,6 +1,9 @@
 'use strict';
-const { spawn } = require('child_process');
-const path = require('path');
+const axios = require('axios');
+
+const HF_MODEL = 'cross-encoder/nli-deberta-v3-small';
+const HF_API   = `https://api-inference.huggingface.co/models/${HF_MODEL}`;
+const LABELS   = ['renewable energy', 'carbon emissions', 'biodiversity', 'water resources', 'climate policy'];
 
 const LABEL_MAP = {
   'renewable energy': 'renewable',
@@ -10,51 +13,35 @@ const LABEL_MAP = {
   'climate policy':    'policy',
 };
 
-const LABELS = Object.keys(LABEL_MAP).join(',');
-const SCRIPT  = path.resolve(__dirname, '../ml/deberta_infer.py');
+async function classifyOne(text) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (process.env.HF_TOKEN) headers['Authorization'] = `Bearer ${process.env.HF_TOKEN}`;
+
+  const res = await axios.post(HF_API, {
+    inputs: text.slice(0, 512),
+    parameters: { candidate_labels: LABELS },
+  }, { headers, timeout: 30000 });
+
+  const best = res.data.labels?.[0];
+  return best ? (LABEL_MAP[best] || best) : null;
+}
 
 async function classifyWithDeBERTa(texts) {
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      console.error('[DeBERTa] Timeout after 120s');
-      child.kill();
-      resolve(null);
-    }, 120000);
-
-    let stdout = '';
-    let stderr = '';
-
-    const child = spawn('python3', [
-      SCRIPT,
-      '--texts', JSON.stringify(texts),
-      '--labels', LABELS,
-    ], { cwd: path.resolve(__dirname, '..') });
-
-    child.stdout.on('data', d => { stdout += d.toString(); });
-    child.stderr.on('data', d => { stderr += d.toString(); });
-
-    child.on('close', (code) => {
-      clearTimeout(timeout);
-      if (stderr) console.error('[DeBERTa stderr]', stderr.slice(0, 500));
-      try {
-        const raw = stdout.trim();
-        if (!raw) { resolve(null); return; }
-        const predictions = JSON.parse(raw);
-        if (!Array.isArray(predictions) || predictions.length === 0) { resolve(null); return; }
-        const mapped = predictions.map(p => LABEL_MAP[p] || p);
-        resolve(mapped);
-      } catch (e) {
-        console.error('[DeBERTa] Parse error:', e.message);
-        resolve(null);
-      }
-    });
-
-    child.on('error', (err) => {
-      clearTimeout(timeout);
-      console.error('[DeBERTa] Spawn error:', err.message);
-      resolve(null);
-    });
-  });
+  try {
+    console.log(`[DeBERTa API] Classifying ${texts.length} texts via HuggingFace...`);
+    const predictions = [];
+    for (let i = 0; i < texts.length; i++) {
+      const pred = await classifyOne(texts[i]);
+      if (!pred) { console.error('[DeBERTa API] null prediction at index', i); return null; }
+      predictions.push(pred);
+      if (i < texts.length - 1) await new Promise(r => setTimeout(r, 300));
+    }
+    console.log('[DeBERTa API] Done.');
+    return predictions;
+  } catch (err) {
+    console.error('[DeBERTa API] error:', err.response?.data || err.message);
+    return null;
+  }
 }
 
 module.exports = { classifyWithDeBERTa };
