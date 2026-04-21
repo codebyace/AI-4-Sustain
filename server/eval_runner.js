@@ -69,8 +69,13 @@ async function runEvaluation() {
 
 async function runOnce() {
   if (fs.existsSync(RESULTS_PATH)) {
-    console.log('[Eval] eval_results.json already exists — skipping evaluation.');
-    return;
+    try {
+      const data = JSON.parse(fs.readFileSync(RESULTS_PATH, 'utf8'));
+      if (data.classifiers) {
+        console.log('[Eval] Classifier results already exist — skipping evaluation.');
+        return;
+      }
+    } catch {}
   }
   runEvaluation().catch(err => console.error('[Eval] Fatal error:', err.message));
 }
