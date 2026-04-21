@@ -4,7 +4,7 @@ const path = require('path');
 const { fetchArticles } = require('./gdelt');
 
 const ARTICLES_PATH = path.resolve(__dirname, '../data/labeled_articles.json');
-const TARGET = 20; // per theme
+const TARGET = 10; // per theme
 const THEMES = ['renewable', 'emissions', 'biodiversity', 'water', 'policy'];
 
 async function seedArticles() {

@@ -108,7 +108,7 @@ function parseArticles(data) {
 async function fetchArticles(theme, region = 'global', timeWindow = '30d') {
   const url = buildUrl(theme, region, timeWindow);
   try {
-    const res = await axios.get(url, { timeout: 15000 });
+    const res = await axios.get(url, { timeout: 45000 });
     let articles = parseArticles(res.data || {});
 
     if (articles.length === 0) {
@@ -116,7 +116,7 @@ async function fetchArticles(theme, region = 'global', timeWindow = '30d') {
       const firstWord = (THEME_KEYWORDS[theme] || '').split(' ')[0].replace(/"/g, '');
       const retryUrl = `https://api.gdeltproject.org/api/v2/doc/doc?` +
         new URLSearchParams({ query: firstWord, mode: 'artlist', maxrecords: '25', format: 'json', sourcelang: 'english', sort: 'DateDesc', timespan: '90d' });
-      const res2 = await axios.get(retryUrl, { timeout: 15000 });
+      const res2 = await axios.get(retryUrl, { timeout: 45000 });
       articles = parseArticles(res2.data || {});
     }
 
