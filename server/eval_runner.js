@@ -4,6 +4,9 @@ const path = require('path');
 
 const { keywordClassifyBatch, gptClassify, THEMES } = require('./classifier');
 const { classifyWithDeBERTa } = require('./deberta');
+const { gEval } = require('./geval');
+const OpenAI = require('openai');
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const ARTICLES_PATH = path.resolve(__dirname, '../data/labeled_articles.json');
 const RESULTS_PATH  = path.resolve(__dirname, '../data/eval_results.json');
@@ -65,6 +68,25 @@ async function runEvaluation() {
 
   fs.writeFileSync(RESULTS_PATH, JSON.stringify(results, null, 2));
   console.log('[Eval] Results written to data/eval_results.json');
+
+  // Startup G-Eval: generate a sample summary and score it so the hero never shows blank
+  try {
+    const sample = articles.filter(a => a.label === 'renewable').slice(0, 8);
+    const articleText = sample.map((a, i) => `${i + 1}. ${a.title}${a.snippet ? ': ' + a.snippet : ''}`).join('\n');
+    const summaryRes = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: `You are a sustainability journalist. Summarise the following news in 3 concise paragraphs.\n\nArticles:\n${articleText}` }],
+      temperature: 0.4, max_tokens: 350,
+    });
+    const summary = summaryRes.choices[0].message.content.trim();
+    const scores  = await gEval(summary, sample.map(a => a.title));
+    const fresh   = JSON.parse(fs.readFileSync(RESULTS_PATH, 'utf8'));
+    fresh.geval   = { ...scores, updatedAt: new Date().toISOString() };
+    fs.writeFileSync(RESULTS_PATH, JSON.stringify(fresh, null, 2));
+    console.log('[Eval] Startup G-Eval done:', scores);
+  } catch (err) {
+    console.warn('[Eval] Startup G-Eval skipped:', err.message);
+  }
 }
 
 async function runOnce() {

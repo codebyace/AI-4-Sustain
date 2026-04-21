@@ -264,8 +264,8 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
     </div>
     <div class="pipe-step">
       <div class="pipe-icon-wrap" style="background:#e8fdf0;color:#059669"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
-      <h4>Evaluation</h4>
-      <p>G-Eval judges summaries on relevance, coherence and grounding. Classifier F1 measured on 50 labeled articles.</p>
+      <h4>Quality Scoring</h4>
+      <p>G-Eval judges summaries on relevance, coherence and grounding. Classifier F1 measured on 100 labeled articles.</p>
       <div class="pipe-arrow">→</div>
     </div>
     <div class="pipe-step">
@@ -418,13 +418,13 @@ footer{background:var(--green);color:rgba(250,248,244,.55);text-align:center;pad
 <!-- EVAL -->
 <section id="eval">
   <div class="sec-tag">Results</div>
-  <h2>Evaluation Metrics</h2>
+  <h2>Quality Scoring</h2>
   <p class="lead">All metrics computed from real inferences on our labeled dataset — no hardcoded values.</p>
   <div class="accent-line"></div>
   <div class="eval-grid">
     <div class="eval-card">
       <h4>Classifier Comparison</h4>
-      <div class="eval-sub">Macro F1 on 50 labeled sustainability articles</div>
+      <div class="eval-sub">Macro F1 on 100 labeled sustainability articles</div>
       <div class="bar-wrap">
         <div class="bar-lbl"><span>Keyword Baseline</span><span id="kw-f1-val">—</span></div>
         <div class="bar-bg"><div class="bar-fill" id="kw-f1-bar" style="width:0%"></div></div>
