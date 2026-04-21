@@ -654,10 +654,7 @@ function applyEval(data) {
 
   // ── Visual 2: Radar chart — best model's F1 across all 5 themes ───────────
   // Pentagon shape: each axis = one theme; further out = higher F1
-  const best     = deb || gpt || kw;
-  const bestName = deb ? 'DeBERTa NLI' : gpt ? 'GPT Zero-Shot' : 'Keyword Baseline';
   if (best?.perClass) {
-    document.getElementById('best-model-label').textContent = bestName;
     const radarCtx = document.getElementById('radar-chart')?.getContext('2d');
     if (radarCtx) {
       if (window._radarChart) window._radarChart.destroy();
